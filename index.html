@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>食品二维码溯源系统</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f8fb;
+      color: #222;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: #0f766e;
+      color: white;
+      padding: 24px;
+      border-radius: 14px;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .item {
+      background: #ecfdf5;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 12px 0;
+      cursor: pointer;
+    }
+    .item:hover {
+      background: #dcfce7;
+    }
+    .item h2 {
+      margin: 0 0 8px;
+      color: #166534;
+    }
+    .status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: bold;
+    }
+    .timeline li {
+      margin: 8px 0;
+    }
+    .backBtn {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>食品二维码溯源系统</h1>
+  </div>
+
+  <!-- 列表区域 -->
+  <div id="listPage" class="card">
+    <h2>食品列表（点击查看溯源）</h2>
+    <div id="list"></div>
+  </div>
+
+  <!-- 详情区域 -->
+  <div id="detailPage" class="card" style="display:none;">
+    <div id="detailContent"></div>
+    <button class="backBtn" onclick="showList()">返回产品列表</button>
+  </div>
+</div>
+
+<script>
+  let products = [];
+
+  // 显示列表
+  function showList() {
+    document.getElementById("listPage").style.display = "block";
+    document.getElementById("detailPage").style.display = "none";
+  }
+
+  // 显示详情
+  function showDetail(p) {
+    document.getElementById("listPage").style.display = "none";
+    document.getElementById("detailPage").style.display = "block";
+
+    document.getElementById("detailContent").innerHTML = `
+      <h2>${p.name}</h2>
+      <p><span class="status">检测结果：${p.testResult}</span></p>
+      <h3>一、基本信息</h3>
+      <p>产品编号：${p.id}</p>
+      <p>生产批次：${p.batch}</p>
+      <p>产地：${p.origin}</p>
+      <p>生产日期：${p.date}</p>
+      <p>保质期：${p.shelfLife}</p>
+      <p>生产企业：${p.producer}</p>
+      <h3>二、检测信息</h3>
+      <p>检测机构：${p.testOrg}</p>
+      <p>检测结果：${p.testResult}</p>
+      <h3>三、物流时间轴</h3>
+      <ul class="timeline">
+        ${p.logistics.map(item => `<li>${item}</li>`).join('')}
+      </ul>
+      <h3>四、溯源结论</h3>
+      <p>${p.conclusion}</p>
+    `;
+  }
+
+  // 初始化
+  async function init() {
+    const res = await fetch('products.json');
+    products = await res.json();
+    const listEl = document.getElementById('list');
+
+    products.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <h2>${p.name}</h2>
+        <p>产地：${p.origin} | 批次：${p.batch}</p>
+      `;
+      div.onclick = () => showDetail(p);
+      listEl.appendChild(div);
+    });
+  }
+
+  init();
+</script>
+
+</body>
+</html>
