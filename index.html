@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>食品二维码溯源系统</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f8fb;
+      color: #222;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: #0f766e;
+      color: white;
+      padding: 24px;
+      border-radius: 14px;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: bold;
+    }
+    .timeline li {
+      margin: 8px 0;
+    }
+    .error {
+      color: #b91c1c;
+      font-weight: bold;
+    }
+    .btn {
+      display: block;
+      text-align: center;
+      background: #16a34a;
+      color: white;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+      font-size: 16px;
+    }
+    .product-item {
+      background: #ecfdf5;
+      padding: 16px;
+      border-radius: 10px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    .product-item:hover {
+      background: #dcfce7;
+    }
+    .product-item h3 {
+      margin: 0 0 6px;
+      color: #166534;
+    }
+    .product-item p {
+      margin: 0;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>食品二维码溯源系统</h1>
+    <p>点击产品查看溯源详情</p>
+  </div>
+
+  <!-- 产品列表 -->
+  <div id="listPage" class="card">
+    <h2>食品列表</h2>
+    <div id="productList"></div>
+  </div>
+
+  <!-- 产品详情 -->
+  <div id="detailPage" class="card" style="display: none;">
+    <div id="app"></div>
+    <button class="btn" onclick="showList()">返回列表</button>
+  </div>
+</div>
+
+<script>
+  // 你的产品数据（直接写在页面里，不需要 products.json）
+  const products = [
+    {
+      "id": "FOOD202605001",
+      "name": "有机纯牛奶",
+      "batch": "2026-05-M01",
+      "origin": "内蒙古呼和浩特有机牧场",
+      "date": "2026-05-10",
+      "shelfLife": "15天",
+      "producer": "内蒙古绿色乳业有限公司",
+      "testResult": "合格",
+      "testOrg": "国家乳制品质量监督检验中心",
+      "logistics": [
+        "2026-05-10 牧场原奶采集",
+        "2026-05-10 低温杀菌处理",
+        "2026-05-11 无菌灌装",
+        "2026-05-11 冷链仓储",
+        "2026-05-12 全国配送"
+      ],
+      "conclusion": "该产品全程冷链，检测合格，安全可追溯。"
+    },
+    {
+      "id": "FOOD202605002",
+      "name": "高原蜂蜜",
+      "batch": "2026-05-H02",
+      "origin": "云南省大理州油菜花蜜源基地",
+      "date": "2026-05-05",
+      "shelfLife": "24个月",
+      "producer": "云南天然蜂产品有限公司",
+      "testResult": "合格",
+      "testOrg": "云南省农产品质量检测中心",
+      "logistics": [
+        "2026-05-05 蜂箱取蜜",
+        "2026-05-06 过滤提纯",
+        "2026-05-06 质量检测",
+        "2026-05-07 瓶装密封",
+        "2026-05-08 仓库发货"
+      ],
+      "conclusion": "天然无添加，溯源信息完整，品质合格。"
+    }
+  ];
+
+  // 显示列表
+  function showList() {
+    document.getElementById("listPage").style.display = "block";
+    document.getElementById("detailPage").style.display = "none";
+  }
+
+  // 显示详情
+  function showDetail(productId) {
+    const product = products.find(p => p.id === productId);
+    const app = document.getElementById("app");
+
+    app.innerHTML = `
+      <h2>${product.name}</h2>
+      <p><span class="status">检测结果：${product.testResult}</span></p>
+      <h3>一、基本信息</h3>
+      <p>产品编号：${product.id}</p>
+      <p>生产批次：${product.batch}</p>
+      <p>产地：${product.origin}</p>
+      <p>生产日期：${product.date}</p>
+      <p>保质期：${product.shelfLife}</p>
+      <p>生产企业：${product.producer}</p>
+      <h3>二、检测信息</h3>
+      <p>检测机构：${product.testOrg}</p>
+      <p>检测结果：${product.testResult}</p>
+      <h3>三、物流时间轴</h3>
+      <ul class="timeline">
+        ${product.logistics.map(item => `<li>${item}</li>`).join('')}
+      </ul>
+      <h3>四、溯源结论</h3>
+      <p>${product.conclusion}</p>
+    `;
+
+    document.getElementById("listPage").style.display = "none";
+    document.getElementById("detailPage").style.display = "block";
+  }
+
+  // 初始化列表
+  window.onload = function () {
+    const list = document.getElementById("productList");
+    products.forEach(p => {
+      const item = document.createElement("div");
+      item.className = "product-item";
+      item.innerHTML = `<h3>${p.name}</h3><p>产地：${p.origin}</p>`;
+      item.onclick = () => showDetail(p.id);
+      list.appendChild(item);
+    });
+  };
+</script>
+
+</body>
+</html>
